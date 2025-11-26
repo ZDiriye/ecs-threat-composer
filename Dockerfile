@@ -11,7 +11,7 @@ COPY app/ .
 RUN yarn build
 
 
-#production stage - copies the final build output and serves it on port 80
+#production stage - copies the final build output and serves it on port 8080
 FROM node:18-alpine
 RUN adduser -S user
 
@@ -21,6 +21,6 @@ COPY --from=Build /app/build ./build
 RUN yarn global add serve
 
 USER user
-EXPOSE 80
+EXPOSE 8080
 
-CMD ["serve", "-s", "build", "-l", "80"]
+CMD ["serve", "-s", "build", "-l", "8080"]
