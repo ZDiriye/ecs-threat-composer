@@ -13,9 +13,18 @@ module "ecs" {
   public2_subnet_id = module.vpc.public2_subnet_id
   vpc_id = module.vpc.vpc_id
   alb_sg_id = module.alb.alb_sg_id
+  target_group_arn = module.alb.target_group_arn
+  aws_lb_listener_arn = module.alb.aws_lb_listener_arn
 }
 
 module "alb" {
   source = "./modules/alb"
   vpc_id = module.vpc.vpc_id
+  public1_subnet_id = module.vpc.public1_subnet_id
+  public2_subnet_id = module.vpc.public2_subnet_id
+  acm_certificate_arn = module.acm.acm_certificate_arn
+}
+
+module "acm" {
+  source = "./modules/acm"
 }

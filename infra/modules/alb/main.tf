@@ -1,4 +1,51 @@
-//alb tasks security group
+//creates the alb
+resource "aws_lb" "alb" {
+  name               = "alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = [var.public1_subnet_id, var.public2_subnet_id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+//creates of the target group for the alb
+resource "aws_lb_target_group" "alb" {
+  name     = "alb-target-group"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    path                = "/"
+    matcher             = "200"
+    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+  }
+}
+
+//creates the listener for the alb
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-Res-PQ-2025-09"
+  certificate_arn   = var.acm_certificate_arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.alb.arn
+  }
+}
+
+//alb's security group
 resource "aws_security_group" "alb" {
   name   = "alb-sg"
   vpc_id = var.vpc_id
@@ -17,5 +64,22 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+data "aws_route53_zone" "main" {
+  name         = "zakariyediriye.com"
+  private_zone = false
+}
+
+resource "aws_route53_record" "tm" {
+  zone_id = data.aws_route53_zone.main.zone_id
+  name    = "tm"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.alb.dns_name
+    zone_id                = aws_lb.alb.zone_id
+    evaluate_target_health = true
   }
 }

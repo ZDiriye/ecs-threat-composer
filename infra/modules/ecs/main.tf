@@ -93,4 +93,13 @@ resource "aws_ecs_service" "service" {
     security_groups = [aws_security_group.ecs_tasks.id]
     assign_public_ip = true
   }
+
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = "ecs-threat-composer-app"
+    container_port   = 8080
+  }
+
+  //prevents race condition
+  depends_on = [ var.aws_lb_listener_arn ]
 }

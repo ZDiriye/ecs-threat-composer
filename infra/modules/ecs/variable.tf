@@ -17,3 +17,11 @@ variable "vpc_id" {
 variable "alb_sg_id" {
   type = string
 }
+
+variable "target_group_arn" {
+  type = string
+}
+
+variable "aws_lb_listener_arn" {
+  type = string
+}
