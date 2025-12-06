@@ -31,7 +31,7 @@ resource "aws_lb_target_group" "alb" {
   }
 }
 
-//creates the listener for the alb
+//creates the listener for https traffic to the alb
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.alb.arn
   port              = 443
@@ -45,15 +45,40 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-//alb's security group
+//creates the listener for http traffic and redirects as https traffic to the alb
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.alb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+//creates alb's security group
 resource "aws_security_group" "alb" {
   name   = "alb-sg"
   vpc_id = var.vpc_id
 
   ingress {
-    description     = "Allow https traffic from the browser to reach alb"
+    description     = "Allow https traffic from the browser to reach alb listener"
     from_port       = 443
     to_port         = 443
+    protocol        = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description     = "Allow http traffic from the browser to reach alb listener"
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -67,11 +92,13 @@ resource "aws_security_group" "alb" {
   }
 }
 
+//references the hosted zone of the domain
 data "aws_route53_zone" "main" {
   name         = "zakariyediriye.com"
   private_zone = false
 }
 
+//adjusts the A record in the hosted zone to reference the alb created
 resource "aws_route53_record" "tm" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "tm"

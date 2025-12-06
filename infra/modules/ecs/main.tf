@@ -26,14 +26,12 @@ resource "aws_ecs_task_definition" "task_definition" {
   cpu       = "1024"
   memory    = "3072"
 
-  execution_role_arn  = "${data.aws_iam_role.ecs_task_execution_role.arn}"
-  task_role_arn    = "${data.aws_iam_role.ecs_task_execution_role.arn}"
+  execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
   
   container_definitions = jsonencode([
     {
       name      = "ecs-threat-composer-app"
       image     = "${var.ecr_repo_url}:${var.image_tag}"
-      cpu       = 10
       memory    = 512
       essential = true
       portMappings = [
@@ -50,7 +48,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   }
 }
 
-//ecs tasks security group
+//creates the security group for the ecs tasks
 resource "aws_security_group" "ecs_tasks" {
   name   = "ecs-tasks-sg"
   vpc_id = var.vpc_id
@@ -72,8 +70,7 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-
-//service
+//creates the service
 resource "aws_ecs_service" "service" {
   name            = "ecs-threat-composer-task-service"
   cluster         = aws_ecs_cluster.ecs.id
@@ -102,4 +99,35 @@ resource "aws_ecs_service" "service" {
 
   //prevents race condition
   depends_on = [ var.aws_lb_listener_arn ]
+}
+
+//states the service auto scaling is for
+resource "aws_appautoscaling_target" "ecs" {
+  min_capacity       = 1
+  max_capacity       = 4
+
+  service_namespace  = "ecs"
+  scalable_dimension = "ecs:service:DesiredCount"
+
+  resource_id = "service/${aws_ecs_cluster.ecs.name}/${aws_ecs_service.service.name}"
+}
+
+//scales the service according to cpu usage
+resource "aws_appautoscaling_policy" "cpu_target" {
+  name               = "cpu-target-tracking"
+  policy_type        = "TargetTrackingScaling"
+
+  service_namespace  = aws_appautoscaling_target.ecs.service_namespace
+  scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension
+  resource_id        = aws_appautoscaling_target.ecs.resource_id
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value       = 70
+    scale_out_cooldown = 300
+    scale_in_cooldown  = 300
+  }
 }
