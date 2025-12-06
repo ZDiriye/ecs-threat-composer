@@ -16,25 +16,15 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-//creates a subnet in the eu-west-2a AZ
-resource "aws_subnet" "public1" {
+//creates a subnet in the eu-west-2a and eu-west-2b AZs
+resource "aws_subnet" "public" {
+  count      = length(var.public_subnet_cidrs)
   vpc_id     = aws_vpc.ecs.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "eu-west-2a"
+  cidr_block = var.public_subnet_cidrs[count.index]
+  availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name = "public1"
-  }
-}
-
-//creates a subnet in the eu-west-2b AZ
-resource "aws_subnet" "public2" {
-  vpc_id     = aws_vpc.ecs.id
-  cidr_block = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
-
-  tags = {
-    Name = "public2"
+    Name = "public${count.index + 1}"
   }
 }
 
@@ -52,14 +42,9 @@ resource "aws_route_table" "public" {
   }
 }
 
-//associates the igw route table with the subnets which becomes a public subnets by routing
-resource "aws_route_table_association" "public1" {
-  subnet_id      = aws_subnet.public1.id
-  route_table_id = aws_route_table.public.id
-}
-
-//associates the igw route table with the subnets which becomes a public subnets by routing
-resource "aws_route_table_association" "public2" {
-  subnet_id      = aws_subnet.public2.id
+//associates the igw route table with the subnets
+resource "aws_route_table_association" "public" {
+  count      = length(var.public_subnet_cidrs)
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }

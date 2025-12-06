@@ -14,7 +14,7 @@ module "ecs" {
   vpc_id = module.vpc.vpc_id
   alb_sg_id = module.alb.alb_sg_id
   target_group_arn = module.alb.target_group_arn
-  aws_lb_listener_arn = module.alb.aws_lb_listener_arn
+  depends_on = [module.alb]
 }
 
 module "alb" {

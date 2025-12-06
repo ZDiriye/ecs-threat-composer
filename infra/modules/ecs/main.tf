@@ -1,8 +1,3 @@
-variable "image_tag" {
-  type    = string
-  default = "5bf734f"
-}
-
 data "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 }
@@ -23,8 +18,8 @@ resource "aws_ecs_task_definition" "task_definition" {
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
 
-  cpu       = "1024"
-  memory    = "3072"
+  cpu       = var.task_cpu
+  memory    = var.task_memory
 
   execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
   
@@ -36,15 +31,15 @@ resource "aws_ecs_task_definition" "task_definition" {
       essential = true
       portMappings = [
         {
-          containerPort = 8080
+          containerPort = var.container_port
           protocol      = "tcp"
         }
       ]
     }
   ])
   runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "ARM64"
+    operating_system_family = var.operating_system_family
+    cpu_architecture        = var.cpu_architecture
   }
 }
 
@@ -80,6 +75,10 @@ resource "aws_ecs_service" "service" {
   desired_count   = 1
   availability_zone_rebalancing = "ENABLED"
 
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
   deployment_circuit_breaker {
     enable   = true
     rollback = true
@@ -94,17 +93,14 @@ resource "aws_ecs_service" "service" {
   load_balancer {
     target_group_arn = var.target_group_arn
     container_name   = "ecs-threat-composer-app"
-    container_port   = 8080
+    container_port   = var.container_port
   }
-
-  //prevents race condition
-  depends_on = [ var.aws_lb_listener_arn ]
 }
 
 //states the service auto scaling is for
 resource "aws_appautoscaling_target" "ecs" {
-  min_capacity       = 1
-  max_capacity       = 4
+  min_capacity       = var.min_capacity
+  max_capacity       = var.max_capacity
 
   service_namespace  = "ecs"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -126,8 +122,8 @@ resource "aws_appautoscaling_policy" "cpu_target" {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
 
-    target_value       = 70
-    scale_out_cooldown = 300
-    scale_in_cooldown  = 300
+    target_value       = var.cpu_target
+    scale_out_cooldown = var.scale_out_cooldown
+    scale_in_cooldown  = var.scale_in_cooldown
   }
 }
