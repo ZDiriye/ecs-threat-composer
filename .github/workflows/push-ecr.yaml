@@ -3,9 +3,6 @@ name: Push Docker image into Amazon ECR
 on:
   workflow_dispatch: {}
 
-permissions:
-  id-token: write
-  contents: read
 
 env:
   AWS_REGION: eu-west-2
@@ -23,8 +20,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: arn:aws:iam::407933037834:role/github-actions-ecr-push
-          aws-region: eu-west-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -33,7 +31,7 @@ jobs:
       - name: Build, tag and push image to Amazon ECR
         id: build-image
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} #references ECR registry (contianer of the repos) which is the output when we log into ECR
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
