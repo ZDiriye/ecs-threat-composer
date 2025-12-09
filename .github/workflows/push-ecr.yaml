@@ -3,7 +3,6 @@ name: Push Docker image into Amazon ECR
 on:
   workflow_dispatch: {}
 
-
 env:
   AWS_REGION: eu-west-2
   ECR_REPOSITORY: ecs-threat-composer
@@ -11,7 +10,6 @@ env:
 jobs:
   Build-and-push:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout
