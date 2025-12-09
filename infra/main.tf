@@ -7,21 +7,21 @@ module "ecr" {
 }
 
 module "ecs" {
-  source = "./modules/ecs"
-  ecr_repo_url = module.ecr.ecr_repo_url
+  source            = "./modules/ecs"
+  ecr_repo_url      = module.ecr.ecr_repo_url
   public1_subnet_id = module.vpc.public1_subnet_id
   public2_subnet_id = module.vpc.public2_subnet_id
-  vpc_id = module.vpc.vpc_id
-  alb_sg_id = module.alb.alb_sg_id
-  target_group_arn = module.alb.target_group_arn
-  depends_on = [module.alb]
+  vpc_id            = module.vpc.vpc_id
+  alb_sg_id         = module.alb.alb_sg_id
+  target_group_arn  = module.alb.target_group_arn
+  depends_on        = [module.alb]
 }
 
 module "alb" {
-  source = "./modules/alb"
-  vpc_id = module.vpc.vpc_id
-  public1_subnet_id = module.vpc.public1_subnet_id
-  public2_subnet_id = module.vpc.public2_subnet_id
+  source              = "./modules/alb"
+  vpc_id              = module.vpc.vpc_id
+  public1_subnet_id   = module.vpc.public1_subnet_id
+  public2_subnet_id   = module.vpc.public2_subnet_id
   acm_certificate_arn = module.acm.acm_certificate_arn
 }
 

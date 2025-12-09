@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.13"
+  required_version = "~> 1.14"
 
   required_providers {
     aws = {
@@ -26,10 +26,10 @@ resource "aws_lb" "alb" {
 
 //creates of the target group for the alb
 resource "aws_lb_target_group" "alb" {
-  name     = "alb-target-group"
-  port     = var.target_port
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "alb-target-group"
+  port        = var.target_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {
@@ -79,18 +79,18 @@ resource "aws_security_group" "alb" {
   vpc_id = var.vpc_id
 
   ingress {
-    description     = "Allow https traffic from the browser to reach alb listener"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    description = "Allow https traffic from the browser to reach alb listener"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description     = "Allow http traffic from the browser to reach alb listener"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
+    description = "Allow http traffic from the browser to reach alb listener"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

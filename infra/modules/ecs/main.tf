@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.13"
+  required_version = "~> 1.14"
 
   required_providers {
     aws = {
@@ -25,15 +25,15 @@ resource "aws_ecs_cluster" "ecs" {
 
 //creates the task definition
 resource "aws_ecs_task_definition" "task_definition" {
-  family = "ecs-threat-composer-task"
+  family                   = "ecs-threat-composer-task"
   requires_compatibilities = ["FARGATE"]
-  network_mode = "awsvpc"
+  network_mode             = "awsvpc"
 
-  cpu       = var.task_cpu
-  memory    = var.task_memory
+  cpu    = var.task_cpu
+  memory = var.task_memory
 
   execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
-  
+
   container_definitions = jsonencode([
     {
       name      = "ecs-threat-composer-app"
@@ -78,12 +78,12 @@ resource "aws_security_group" "ecs_tasks" {
 
 //creates the service
 resource "aws_ecs_service" "service" {
-  name            = "ecs-threat-composer-task-service"
-  cluster         = aws_ecs_cluster.ecs.id
-  task_definition = aws_ecs_task_definition.task_definition.arn
-  launch_type     = "FARGATE"
-  platform_version = "LATEST"
-  desired_count   = 1
+  name                          = "ecs-threat-composer-task-service"
+  cluster                       = aws_ecs_cluster.ecs.id
+  task_definition               = aws_ecs_task_definition.task_definition.arn
+  launch_type                   = "FARGATE"
+  platform_version              = "LATEST"
+  desired_count                 = 1
   availability_zone_rebalancing = "ENABLED"
 
   lifecycle {
@@ -96,8 +96,8 @@ resource "aws_ecs_service" "service" {
   }
 
   network_configuration {
-    subnets = [var.public1_subnet_id, var.public2_subnet_id]
-    security_groups = [aws_security_group.ecs_tasks.id]
+    subnets          = [var.public1_subnet_id, var.public2_subnet_id]
+    security_groups  = [aws_security_group.ecs_tasks.id]
     assign_public_ip = true
   }
 
@@ -110,8 +110,8 @@ resource "aws_ecs_service" "service" {
 
 //states the service auto scaling is for
 resource "aws_appautoscaling_target" "ecs" {
-  min_capacity       = var.min_capacity
-  max_capacity       = var.max_capacity
+  min_capacity = var.min_capacity
+  max_capacity = var.max_capacity
 
   service_namespace  = "ecs"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -121,8 +121,8 @@ resource "aws_appautoscaling_target" "ecs" {
 
 //scales the service according to cpu usage
 resource "aws_appautoscaling_policy" "cpu_target" {
-  name               = "cpu-target-tracking"
-  policy_type        = "TargetTrackingScaling"
+  name        = "cpu-target-tracking"
+  policy_type = "TargetTrackingScaling"
 
   service_namespace  = aws_appautoscaling_target.ecs.service_namespace
   scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension

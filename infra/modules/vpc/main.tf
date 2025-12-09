@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.13"
+  required_version = "~> 1.14"
 
   required_providers {
     aws = {
@@ -29,9 +29,9 @@ resource "aws_internet_gateway" "igw" {
 
 //creates a subnet in the eu-west-2a and eu-west-2b AZs
 resource "aws_subnet" "public" {
-  count      = length(var.public_subnet_cidrs)
-  vpc_id     = aws_vpc.ecs.id
-  cidr_block = var.public_subnet_cidrs[count.index]
+  count             = length(var.public_subnet_cidrs)
+  vpc_id            = aws_vpc.ecs.id
+  cidr_block        = var.public_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index]
 
   tags = {
@@ -55,7 +55,7 @@ resource "aws_route_table" "public" {
 
 //associates the igw route table with the subnets
 resource "aws_route_table_association" "public" {
-  count      = length(var.public_subnet_cidrs)
+  count          = length(var.public_subnet_cidrs)
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }

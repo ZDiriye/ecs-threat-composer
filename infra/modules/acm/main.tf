@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.13"
+  required_version = "~> 1.14"
 
   required_providers {
     aws = {
@@ -11,7 +11,7 @@ terraform {
 
 
 data "aws_acm_certificate" "issued" {
-  domain   = "tm.zakariyediriye.com"
-  types    = ["AMAZON_ISSUED"]
+  domain      = "tm.zakariyediriye.com"
+  types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
