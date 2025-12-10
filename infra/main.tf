@@ -15,6 +15,7 @@ module "ecs" {
   alb_sg_id         = module.alb.alb_sg_id
   target_group_arn  = module.alb.target_group_arn
   depends_on        = [module.alb]
+  ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
 }
 
 module "alb" {

@@ -76,3 +76,12 @@ variable "cpu_architecture" {
   type    = string
   default = "ARM64"
 }
+
+variable "aws_region" {
+  type    = string
+  default = "eu-west-2"
+}
+
+variable "ecs_task_execution_role_arn" {
+  type    = string
+}

@@ -9,10 +9,6 @@ terraform {
   }
 }
 
-data "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
-}
-
 //creates the ecs cluster
 resource "aws_ecs_cluster" "ecs" {
   name = "ecs-threat-composer"
@@ -21,6 +17,12 @@ resource "aws_ecs_cluster" "ecs" {
     name  = "containerInsights"
     value = "enabled"
   }
+}
+
+//creates the cloudwatch log group
+resource "aws_cloudwatch_log_group" "ecs" {
+  name              = "/ecs/ecs-threat-composer"
+  retention_in_days = 7
 }
 
 //creates the task definition
@@ -32,7 +34,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   cpu    = var.task_cpu
   memory = var.task_memory
 
-  execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn = var.ecs_task_execution_role_arn
 
   container_definitions = jsonencode([
     {
@@ -44,10 +46,20 @@ resource "aws_ecs_task_definition" "task_definition" {
         {
           containerPort = var.container_port
           protocol      = "tcp"
-        }
+        }      
       ]
+      
+      logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            awslogs-group         = aws_cloudwatch_log_group.ecs.name
+            awslogs-region        = var.aws_region
+            awslogs-stream-prefix = "ecs"
+          }
+      }
     }
   ])
+
   runtime_platform {
     operating_system_family = var.operating_system_family
     cpu_architecture        = var.cpu_architecture
