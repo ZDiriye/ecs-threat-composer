@@ -83,5 +83,5 @@ variable "aws_region" {
 }
 
 variable "ecs_task_execution_role_arn" {
-  type    = string
+  type = string
 }

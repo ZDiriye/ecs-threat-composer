@@ -6,15 +6,19 @@ module "ecr" {
   source = "./modules/ecr"
 }
 
+module "iam" {
+  source = "./modules/iam"
+}
+
 module "ecs" {
-  source            = "./modules/ecs"
-  ecr_repo_url      = module.ecr.ecr_repo_url
-  public1_subnet_id = module.vpc.public1_subnet_id
-  public2_subnet_id = module.vpc.public2_subnet_id
-  vpc_id            = module.vpc.vpc_id
-  alb_sg_id         = module.alb.alb_sg_id
-  target_group_arn  = module.alb.target_group_arn
-  depends_on        = [module.alb]
+  source                      = "./modules/ecs"
+  ecr_repo_url                = module.ecr.ecr_repo_url
+  public1_subnet_id           = module.vpc.public1_subnet_id
+  public2_subnet_id           = module.vpc.public2_subnet_id
+  vpc_id                      = module.vpc.vpc_id
+  alb_sg_id                   = module.alb.alb_sg_id
+  target_group_arn            = module.alb.target_group_arn
+  depends_on                  = [module.alb]
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
 }
 
