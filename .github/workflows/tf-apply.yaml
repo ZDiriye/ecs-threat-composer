@@ -1,10 +1,10 @@
-name: Run Terraform Destroy
+name: Run Terraform Apply
 
 on:
   workflow_dispatch:
     inputs:
-      run_destroy:
-        description: "Do you want to run the Terraform destroy workflow?"
+      run_apply:
+        description: "Do you want to run the Terraform apply workflow?"
         required: true
         default: "no"
         type: choice
@@ -16,7 +16,7 @@ env:
   AWS_REGION: eu-west-2
   
 jobs:
-  terraform-destroy:
+  terraform-apply:
     runs-on: ubuntu-latest
 
     defaults:
@@ -26,8 +26,8 @@ jobs:
     steps:
       - name: Check confirmation
         run: |
-          if [ "${{ github.event.inputs.run_destroy }}" != "yes" ]; then
-            echo "Not running the Terraform destroy workflow"
+          if [ "${{ github.event.inputs.run_apply }}" != "yes" ]; then
+            echo "Not running the Terraform apply workflow"
             exit 1
           fi
 
@@ -49,6 +49,5 @@ jobs:
       - name: Terraform init
         run: terraform init
 
-      - name: Terraform destroy
-        id: destroy
-        run: terraform destroy -auto-approve 
+      - name: Terraform apply
+        run: terraform apply -auto-approve
