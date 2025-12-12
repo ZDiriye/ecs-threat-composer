@@ -11,7 +11,7 @@ terraform {
 
 //creates the ACM cert using DNS validation
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "tm.zakariyediriye.com"
+  domain_name       = var.domain_name
   validation_method = "DNS"
 
   lifecycle {
@@ -21,8 +21,8 @@ resource "aws_acm_certificate" "cert" {
 
 //references Route53
 data "aws_route53_zone" "zakariyediriye" {
-  name         = "zakariyediriye.com"
-  private_zone = false
+  name         = var.hosted_zone_name
+  private_zone = var.private_zone
 }
 
 //creates the record in the hosted zone for the domain on the ACM cert
@@ -40,7 +40,7 @@ resource "aws_route53_record" "cert_validation" {
   name            = each.value.name
   type            = each.value.type
   records         = [each.value.record]
-  ttl             = 300
+  ttl             = var.cert_validation_ttl
   allow_overwrite = true
 }
 
