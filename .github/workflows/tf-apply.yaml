@@ -1,11 +1,6 @@
 name: Run Terraform Apply
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "infra/**"
-      - ".github/workflows/tf-apply.yml"
   workflow_dispatch:
     inputs:
       run_apply:
@@ -16,6 +11,9 @@ on:
         options:
           - "yes"
           - "no"
+      image_tag:
+        description: "Enter the ECR image tag to deploy"
+        required: true
 
 env:
   AWS_REGION: eu-west-2
@@ -34,7 +32,7 @@ jobs:
         
       - name: Check confirmation
         run: |
-          if [ "${{ github.event.inputs.run_apply }}" != "yes" ]; then
+          if [ "${{ inputs.run_apply }}" != "yes" ]; then
             echo "Not running the Terraform apply workflow"
             exit 1
           fi
@@ -55,4 +53,4 @@ jobs:
         run: terraform init
 
       - name: Terraform apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var="image_tag=${{ inputs.image_tag }}"

@@ -1,11 +1,6 @@
 name: Run Terraform Destroy
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "infra/**"
-      - ".github/workflows/tf-destroy.yml"
   workflow_dispatch:
     inputs:
       run_destroy:
@@ -34,7 +29,7 @@ jobs:
 
       - name: Check confirmation
         run: |
-          if [ "${{ github.event.inputs.run_destroy }}" != "yes" ]; then
+          if [ "${{ inputs.run_destroy }}" != "yes" ]; then
             echo "Not running the Terraform destroy workflow"
             exit 1
           fi

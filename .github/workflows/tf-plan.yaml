@@ -1,11 +1,6 @@
 name: Run Terraform Plan
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - "infra/**"
-      - ".github/workflows/tf-plan.yml"
   workflow_dispatch: {}
 
 env:
@@ -53,4 +48,3 @@ jobs:
       - name: Terraform plan
         id: plan
         run: terraform plan -no-color
-        
