@@ -13,8 +13,8 @@ module "iam" {
 module "ecs" {
   source                      = "./modules/ecs"
   ecr_repo_url                = module.ecr.ecr_repo_url
-  public1_subnet_id           = module.vpc.public1_subnet_id
-  public2_subnet_id           = module.vpc.public2_subnet_id
+  private1_subnet_id          = module.vpc.private1_subnet_id
+  private2_subnet_id          = module.vpc.private2_subnet_id
   vpc_id                      = module.vpc.vpc_id
   alb_sg_id                   = module.alb.alb_sg_id
   target_group_arn            = module.alb.target_group_arn

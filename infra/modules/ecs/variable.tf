@@ -2,11 +2,11 @@ variable "ecr_repo_url" {
   type = string
 }
 
-variable "public1_subnet_id" {
+variable "private1_subnet_id" {
   type = string
 }
 
-variable "public2_subnet_id" {
+variable "private2_subnet_id" {
   type = string
 }
 
