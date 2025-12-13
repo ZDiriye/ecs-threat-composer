@@ -1,6 +1,11 @@
 name: Run Terraform Destroy
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "infra/**"
+      - ".github/workflows/tf-destroy.yml"
   workflow_dispatch:
     inputs:
       run_destroy:

@@ -1,6 +1,11 @@
 name: Run Terraform Apply
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "infra/**"
+      - ".github/workflows/tf-apply.yml"
   workflow_dispatch:
     inputs:
       run_apply:

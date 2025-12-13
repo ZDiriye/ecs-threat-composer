@@ -1,6 +1,12 @@
 name: Push Docker image into Amazon ECR
 
 on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "app/**"
+      - "Dockerfile"
+      - ".github/workflows/push-ecr.yml"
   workflow_dispatch: {}
 
 env:
@@ -26,13 +32,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag and push image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "Pushed $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" 
+      - name: Set image uri
+        run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_ENV
 
+      - name: Build image
+        run: docker build -t $IMAGE_URI .
+
+      - name: Scan image to prevent vulnerability
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: ${{ env.IMAGE_URI }}
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+
+      - name: Push image
+        run: |
+          docker push $IMAGE_URI
+          echo "Pushed $IMAGE_URI"
