@@ -24,6 +24,7 @@ variable "target_group_arn" {
 
 variable "image_tag" {
   type    = string
+  default = "5bf734f"
 }
 
 variable "task_cpu" {
