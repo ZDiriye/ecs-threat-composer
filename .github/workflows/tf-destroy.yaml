@@ -11,6 +11,9 @@ on:
         options:
           - "yes"
           - "no"
+      image_tag:
+        description: "Enter the ECR image tag to run destroy"
+        required: true
 
 permissions:
   id-token: write
@@ -54,4 +57,4 @@ jobs:
 
       - name: Terraform destroy
         id: destroy
-        run: terraform destroy -auto-approve 
+        run: terraform destroy -auto-approve -var="image_tag=${{ inputs.image_tag }}"

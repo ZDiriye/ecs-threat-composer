@@ -23,7 +23,8 @@ variable "target_group_arn" {
 }
 
 variable "image_tag" {
-  type = string
+  type    = string
+  default = "10146ee604df77366a038ee10459fc56206eb506"
 }
 
 variable "task_cpu" {
@@ -39,31 +40,6 @@ variable "task_memory" {
 variable "container_port" {
   type    = number
   default = 8080
-}
-
-variable "min_capacity" {
-  type    = number
-  default = 1
-}
-
-variable "max_capacity" {
-  type    = number
-  default = 4
-}
-
-variable "cpu_target" {
-  type    = number
-  default = 70
-}
-
-variable "scale_out_cooldown" {
-  type    = number
-  default = 300
-}
-
-variable "scale_in_cooldown" {
-  type    = number
-  default = 300
 }
 
 variable "operating_system_family" {

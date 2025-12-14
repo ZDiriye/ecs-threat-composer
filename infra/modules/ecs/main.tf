@@ -119,34 +119,3 @@ resource "aws_ecs_service" "service" {
     container_port   = var.container_port
   }
 }
-
-//states the service auto scaling is for
-resource "aws_appautoscaling_target" "ecs" {
-  min_capacity = var.min_capacity
-  max_capacity = var.max_capacity
-
-  service_namespace  = "ecs"
-  scalable_dimension = "ecs:service:DesiredCount"
-
-  resource_id = "service/${aws_ecs_cluster.ecs.name}/${aws_ecs_service.service.name}"
-}
-
-//scales the service according to cpu usage
-resource "aws_appautoscaling_policy" "cpu_target" {
-  name        = "cpu-target-tracking"
-  policy_type = "TargetTrackingScaling"
-
-  service_namespace  = aws_appautoscaling_target.ecs.service_namespace
-  scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension
-  resource_id        = aws_appautoscaling_target.ecs.resource_id
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
-    }
-
-    target_value       = var.cpu_target
-    scale_out_cooldown = var.scale_out_cooldown
-    scale_in_cooldown  = var.scale_in_cooldown
-  }
-}
