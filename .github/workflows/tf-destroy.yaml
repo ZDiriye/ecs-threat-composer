@@ -46,7 +46,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: "arn:aws:iam::407933037834:oidc-provider/token.actions.githubusercontent.com"
+          role-to-assume: "arn:aws:iam::407933037834:role/gha-terraform"
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform init
