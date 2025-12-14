@@ -31,7 +31,7 @@ module "ecs" {
   target_group_arn            = module.alb.target_group_arn
   depends_on                  = [module.alb]
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
-  image_tag = var.image_tag
+  image_tag                   = var.image_tag
 }
 
 module "alb" {

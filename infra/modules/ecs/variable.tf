@@ -23,8 +23,7 @@ variable "target_group_arn" {
 }
 
 variable "image_tag" {
-  type    = string
-  default = "5bf734f"
+  type = string
 }
 
 variable "task_cpu" {
@@ -74,7 +73,7 @@ variable "operating_system_family" {
 
 variable "cpu_architecture" {
   type    = string
-  default = "ARM64"
+  default = "X86_64"
 }
 
 variable "aws_region" {
