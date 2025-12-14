@@ -1,7 +1,11 @@
 name: Run Terraform Plan
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Enter the ECR image tag to run plan"
+        required: true
 
 permissions:
   id-token: write
@@ -50,4 +54,4 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform plan -no-color
+        run: terraform plan -no-color -var="image_tag=${{ inputs.image_tag }}"

@@ -12,7 +12,7 @@ on:
           - "yes"
           - "no"
       image_tag:
-        description: "Enter the ECR image tag to deploy"
+        description: "Enter the ECR image tag to run apply"
         required: true
 
 permissions:
