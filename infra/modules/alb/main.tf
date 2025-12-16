@@ -13,9 +13,9 @@ terraform {
 resource "aws_lb" "alb" {
   name               = "alb"
   internal           = false
-  load_balancer_type = "application"
+  load_balancer_type = var.load_balancer_type
   security_groups    = [aws_security_group.alb.id]
-  subnets            = [var.public1_subnet_id, var.public2_subnet_id]
+  subnets            = var.public_subnets_id
 
   enable_deletion_protection = false
 
@@ -113,7 +113,7 @@ data "aws_route53_zone" "main" {
 resource "aws_route53_record" "tm" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = var.record_name
-  type    = "A"
+  type    = var.record_type
 
   alias {
     name                   = aws_lb.alb.dns_name

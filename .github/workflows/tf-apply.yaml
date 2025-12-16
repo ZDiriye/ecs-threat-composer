@@ -44,8 +44,8 @@ jobs:
       - name: Terraform apply
         run: terraform apply -auto-approve
 
-      - name: Wait 100 seconds
-        run: sleep 100
+      - name: Wait 60 seconds
+        run: sleep 60
 
       - name: Run a Health Check
         run: curl -f https://tm.zakariyediriye.com/health.json

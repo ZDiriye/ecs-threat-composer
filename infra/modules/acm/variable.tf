@@ -1,19 +1,15 @@
 variable "domain_name" {
-  type    = string
-  default = "tm.zakariyediriye.com"
+  type = string
 }
 
 variable "hosted_zone_name" {
-  type    = string
-  default = "zakariyediriye.com"
+  type = string
 }
 
 variable "private_zone" {
-  type    = bool
-  default = false
+  type = bool
 }
 
 variable "cert_validation_ttl" {
-  type    = number
-  default = 300
+  type = number
 }

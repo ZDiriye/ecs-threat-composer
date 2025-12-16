@@ -2,12 +2,8 @@ variable "vpc_id" {
   type = string
 }
 
-variable "public1_subnet_id" {
-  type = string
-}
-
-variable "public2_subnet_id" {
-  type = string
+variable "public_subnets_id" {
+  type = list(string)
 }
 
 variable "acm_certificate_arn" {
@@ -15,31 +11,33 @@ variable "acm_certificate_arn" {
 }
 
 variable "target_port" {
-  type    = number
-  default = 8080
+  type = number
 }
 
 variable "health_check_path" {
-  type    = string
-  default = "/"
+  type = string
 }
 
 variable "health_check_matcher" {
-  type    = string
-  default = "200"
+  type = string
 }
 
 variable "ssl_policy" {
-  type    = string
-  default = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  type = string
 }
 
 variable "zone_name" {
-  type    = string
-  default = "zakariyediriye.com"
+  type = string
 }
 
 variable "record_name" {
-  type    = string
-  default = "tm"
+  type = string
+}
+
+variable "record_type" {
+  type = string
+}
+
+variable "load_balancer_type" {
+  type = string
 }

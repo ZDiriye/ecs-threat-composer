@@ -11,7 +11,7 @@ terraform {
 
 //creates the ecs cluster
 resource "aws_ecs_cluster" "ecs" {
-  name = "ecs-threat-composer"
+  name = var.cluster_name
 
   setting {
     name  = "containerInsights"
@@ -21,13 +21,13 @@ resource "aws_ecs_cluster" "ecs" {
 
 //creates the cloudwatch log group
 resource "aws_cloudwatch_log_group" "ecs" {
-  name              = "/ecs/ecs-threat-composer"
-  retention_in_days = 7
+  name              = var.log_group_name
+  retention_in_days = var.log_retention_in_days
 }
 
 //creates the task definition
 resource "aws_ecs_task_definition" "task_definition" {
-  family                   = "ecs-threat-composer-task"
+  family                   = var.task_family
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
 
@@ -38,14 +38,14 @@ resource "aws_ecs_task_definition" "task_definition" {
 
   container_definitions = jsonencode([
     {
-      name      = "ecs-threat-composer-app"
-      image     = "${var.ecr_repo_url}:latest"
+      name      = var.container_name
+      image     = "${var.ecr_repo_url}:${var.image_tag}"
       memory    = 512
       essential = true
       portMappings = [
         {
           containerPort = var.container_port
-          protocol      = "tcp"
+          protocol      = var.container_protocol
         }
       ]
 
@@ -54,7 +54,7 @@ resource "aws_ecs_task_definition" "task_definition" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.ecs.name
           awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "ecs"
+          awslogs-stream-prefix = var.awslogs_stream_prefix
         }
       }
     }
@@ -90,13 +90,13 @@ resource "aws_security_group" "ecs_tasks" {
 
 //creates the service
 resource "aws_ecs_service" "service" {
-  name                          = "ecs-threat-composer-task-service"
+  name                          = var.service_name
   cluster                       = aws_ecs_cluster.ecs.id
   task_definition               = aws_ecs_task_definition.task_definition.arn
-  launch_type                   = "FARGATE"
-  platform_version              = "LATEST"
-  desired_count                 = 1
-  availability_zone_rebalancing = "ENABLED"
+  launch_type                   = var.launch_type
+  platform_version              = var.platform_version
+  desired_count                 = var.desired_count
+  availability_zone_rebalancing = var.availability_zone_rebalancing
 
   lifecycle {
     ignore_changes = [desired_count]
@@ -108,14 +108,14 @@ resource "aws_ecs_service" "service" {
   }
 
   network_configuration {
-    subnets          = [var.private1_subnet_id, var.private2_subnet_id]
+    subnets          = var.private_subnets_id
     security_groups  = [aws_security_group.ecs_tasks.id]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = var.target_group_arn
-    container_name   = "ecs-threat-composer-app"
+    container_name   = var.container_name
     container_port   = var.container_port
   }
 }
