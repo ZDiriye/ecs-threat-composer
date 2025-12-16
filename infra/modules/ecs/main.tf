@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "task_definition" {
   container_definitions = jsonencode([
     {
       name      = "ecs-threat-composer-app"
-      image     = "${var.ecr_repo_url}:${var.image_tag}"
+      image     = "${var.ecr_repo_url}:latest"
       memory    = 512
       essential = true
       portMappings = [

@@ -22,11 +22,6 @@ variable "target_group_arn" {
   type = string
 }
 
-variable "image_tag" {
-  type    = string
-  default = "10146ee604df77366a038ee10459fc56206eb506"
-}
-
 variable "task_cpu" {
   type    = number
   default = 1024

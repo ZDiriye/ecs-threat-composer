@@ -3,16 +3,8 @@ name: Run Terraform Apply
 on:
   workflow_dispatch:
     inputs:
-      run_apply:
-        description: "Do you want to run the Terraform apply workflow?"
-        required: true
-        default: "no"
-        type: choice
-        options:
-          - "yes"
-          - "no"
-      image_tag:
-        description: "Enter the ECR image tag to run apply"
+      confirm:
+        description: "Type YES to run"
         required: true
 
 permissions:
@@ -36,8 +28,8 @@ jobs:
         
       - name: Check confirmation
         run: |
-          if [ "${{ inputs.run_apply }}" != "yes" ]; then
-            echo "Not running the Terraform apply workflow"
+          if [ "${{ inputs.confirm }}" != "YES" ]; then
+            echo "Not running the workflow"
             exit 1
           fi
 
@@ -56,4 +48,7 @@ jobs:
         run: terraform init
 
       - name: Terraform apply
-        run: terraform apply -auto-approve -var="image_tag=${{ inputs.image_tag }}"
+        run: terraform apply -auto-approve
+
+      - name: Run a Health Check
+        run: curl -f https://tm.zakariyediriye.com/health.json
