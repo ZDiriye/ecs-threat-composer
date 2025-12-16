@@ -87,4 +87,8 @@ module "ecr" {
 
 module "iam" {
   source = "./modules/iam"
+
+  ecs_execution_role_name  = var.ecs_execution_role_name
+  ecs_execution_policy_arn = var.ecs_execution_policy_arn
+  task_service_principals  = var.task_service_principals
 }
