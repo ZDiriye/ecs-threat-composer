@@ -30,7 +30,7 @@ variable "container_port" {
 
 variable "desired_count" {
   type    = number
-  default = 1
+  default = 2
 }
 
 variable "log_retention_in_days" {
