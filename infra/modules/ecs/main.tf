@@ -93,10 +93,6 @@ resource "aws_ecs_service" "service" {
   desired_count                 = var.desired_count
   availability_zone_rebalancing = var.availability_zone_rebalancing
 
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
-
   deployment_circuit_breaker {
     enable   = true
     rollback = true
