@@ -117,7 +117,7 @@ After the local setup you can run a health check:
 curl -f http://localhost:3000/health.json
 ```
 
-## Live Domain and SSL
+## Live Domain Page
 
 ### Domain Page
 ![Domain Page](images/domain_page.png)
