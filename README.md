@@ -11,14 +11,15 @@ This project is a complete AWS deployment of a containerised web application. It
 Terraform provisions the AWS infrastructure in `infra/` using a modular setup.
 
 #### Request flow
-1. User hits `tm.zakariyediriye.com` over HTTPS.
-2. Route 53 routes traffic to the Application Load Balancer (ALB).
-3. ALB redirects HTTP to HTTPS and forwards HTTPS traffic to the target group, which routes traffic to the Fargate tasks.
-4. ECS/Fargate tasks run the container in private subnets and send logs to CloudWatch.
+1. User enters `tm.zakariyediriye.com` in the browser.
+2. Route 53 looks up the domain and returns the ALB DNS name.
+3. If the request is HTTP, the ALB redirects it to HTTPS.
+4. For HTTPS, the ALB performs the TLS handshake using the ACM cert then forwards the request to the target group which has the task IPs.
+5. An ECS service manages tasks running in private subnets. The container receives traffic on port 8080 and logs are sent to CloudWatch.
 
 #### Networking
-- Creates a VPC with public and private subnets across two Availability Zones.
-- Public subnets have an Internet Gateway route and private subnets route outbound traffic through NAT Gateways.
+- Creates a VPC with public and private subnets across 2 Availability Zones.
+- Public subnets route to an Internet Gateway and private subnets use NAT Gateways for outbound access.
 
 #### Load Balancing and DNS
 - Creates an internet facing ALB with:
@@ -26,21 +27,21 @@ Terraform provisions the AWS infrastructure in `infra/` using a modular setup.
   - HTTPS listener that forwards to the target group
 - Creates a Route 53 alias A record pointing the subdomain to the ALB.
 
-#### SSL and HTTPS
+#### TLS (HTTPS)
 - Requests an ACM certificate using DNS validation.
 - Creates the validation records in Route 53 and completes certificate validation.
 
 #### ECS
 - Creates an ECS cluster.
-- Defines a Fargate task definition for the container image from ECR, including CloudWatch logging.
-- Creates an ECS service that manages Fargate tasks running in private subnets. The ALB forwards traffic to the tasks through the target group.
+- Creates the task definition.
+- Creates an ECS service that manages tasks in private subnets.
 - Tasks only accept inbound traffic from the ALB on port 8080.
 
 #### IAM
-- Creates the ECS task execution role and attaches the required execution policy.
+- Creates the ECS task execution role used by tasks at runtime.
 
-#### Container Registry reference
-- Reads an existing ECR repository for use by the deployment.
+#### ECR
+- Reads an existing ECR repository for the deployment.
 
 ## CI/CD Workflows (GitHub Actions)
 
@@ -106,12 +107,12 @@ yarn build
 yarn global add serve
 serve -s build
 ```
-Then paste in your browser:
+Then in your browser run:
 ```text
 http://localhost:3000
 ```
 ### Local Health Check
-After the local setup, you can run a health check:
+After the local setup you can run a health check:
 ```bash
 curl -f http://localhost:3000/health.json
 ```
